@@ -1,43 +1,62 @@
 # Fitbit-Node
 
-An API client library for Fitbit written in Node.js.
+Fitbit-Node is a lightweight Node.js client for the [Fitbit Web API](https://dev.fitbit.com/build/reference/web-api/). It provides helpers for performing the OAuth 2.0 flow and convenience wrappers around the HTTP endpoints.
 
-## Usage
-1. `npm install fitbit-node`
-1. (In your JS file) `var FitbitApiClient = require("fitbit-node");`
+## Installation
 
-## API
+```bash
+npm install fitbit-node
+```
 
-#### `new FitbitApiClient({clientId: "YOUR_CLIENT_ID", clientSecret: "YOUR_CLIENT_SECRET", apiVersion: "1.2"})`
-Constructor. Use the `clientId` and `clientSecret` provided to you when you registered your application on [dev.fitbit.com](http://dev.fitbit.com/).
-The `apiVersion` is by default 1.2
+```javascript
+const FitbitApiClient = require("fitbit-node");
+```
 
-#### `getAuthorizeUrl(scope, redirectUrl, [prompt], [state])`
-Construct the authorization URL. This is the first step of the OAuth 2.0 flow. Returns a string. When this string containing the authorization URL on the Fitbit site is returned, redirect the user to that URL for authorization. The `scope` (a string of space-delimitted scope values you wish to obtain authorization for) and the `redirectUrl` (a string for the URL where you want Fitbit to redirect the user after authorization) are required. See the [Scope](https://dev.fitbit.com/docs/oauth2/#scope) section in Fitbit's API documentation for more details about possible scope values. See the [Authorization Page](https://dev.fitbit.com/docs/oauth2/#authorization-page) section in Fitbit's API documentation for more details about possible `prompt` and `state` values. 
+## Creating a client
 
-#### `getAccessToken(code, redirectUrl)`
-After the user authorizes your application with Fitbit, they will be forwarded to the `redirectUrl` you specified when calling `getAuthorizationUrl()`, and the `code` will be present in the URL. Use this to exchange the authorization code for an access token in order to make API calls. Returns a promise.
+```javascript
+const client = new FitbitApiClient({
+  clientId: "YOUR_CLIENT_ID",
+  clientSecret: "YOUR_CLIENT_SECRET",
+  apiVersion: "1.2" // optional, defaults to 1.2
+});
+```
 
-#### `refreshAccessToken(accessToken, refreshToken, [expiresIn])`
-Refresh the user's access token, in the event that it has expired. The `accessToken` and `refreshToken` (returned as `refresh_token` alongside the `access_token` by the `getAccessToken()` method) are required. The `expiresIn` parameter specifies the new desired access token lifetime in seconds. Returns a promise.
+## API methods
 
-#### `revokeAccessToken(accessToken)`
-Revoke the user's access token. The `accessToken` to be revoked is required. Returns a promise.
+### OAuth helpers
 
-#### `get(path, accessToken, [userId], [extraHeaders])`
-Make a GET API call to the Fitbit servers. (See [example.js](https://github.com/lukasolson/fitbit-node/blob/master/example.js) for an example.) Returns a promise.
+- `getAuthorizeUrl(scope, redirectUrl, [prompt], [state])` – Build the authorization URL for the OAuth 2.0 flow.
+- `getAccessToken(code, redirectUrl)` – Exchange an authorization code for an access token.
+- `refreshAccessToken(accessToken, refreshToken, [expiresIn])` – Refresh an expired access token.
+- `revokeAccessToken(accessToken)` – Revoke an access token when it is no longer needed.
 
-#### `post(path, accessToken, data, [userId], [extraHeaders])`
-Make a POST API call to the Fitbit servers. Returns a promise.
+### HTTP helpers
 
-#### `put(path, accessToken, data, [userId], [extraHeaders])`
-Make a PUT API call to the Fitbit servers. Returns a promise.
+- `get(path, accessToken, [userId], [extraHeaders])` – Perform a GET request.
+- `post(path, accessToken, data, [userId], [extraHeaders])` – Perform a POST request.
+- `put(path, accessToken, data, [userId], [extraHeaders])` – Perform a PUT request.
+- `delete(path, accessToken, [userId], [extraHeaders])` – Perform a DELETE request.
 
-#### `delete(path, accessToken, [userId], [extraHeaders])`
-Make a DELETE API call to the Fitbit servers. Returns a promise.
+All HTTP helpers resolve with `[body, response]` from the underlying request.
 
-## Custom HTTP Headers
+### Calling Fitbit API endpoints
 
-Some Fitbit API calls (such as [adding subscriptions](https://dev.fitbit.com/docs/subscriptions/#adding-a-subscription)) accept an optional HTTP header.  The `get`, `post`, `put`, and `delete` functions accept an optional parameter with an object with HTTP headers to handle these kind of calls (`extraHeaders` above).  The default `Authorization` header is merged with the provided parameter, if it exists.
+This library does not expose individual functions for each Fitbit endpoint. Instead, use the HTTP helpers with the paths documented by Fitbit. For example, to fetch the user's profile:
 
+```javascript
+client.get("/profile.json", accessToken).then(results => {
+  console.log(results[0]);
+});
+```
+
+Refer to the [Fitbit API documentation](https://dev.fitbit.com/build/reference/web-api/) for a complete list of available endpoints and data formats.
+
+### Custom HTTP headers
+
+Some Fitbit API calls (such as [adding subscriptions](https://dev.fitbit.com/docs/subscriptions/#adding-a-subscription)) accept additional HTTP headers. The `get`, `post`, `put` and `delete` functions accept an optional `extraHeaders` parameter which will be merged with the default `Authorization` header.
+
+## Example
+
+See [`example.js`](https://github.com/lukasolson/fitbit-node/blob/master/example.js) for a small Express application demonstrating the OAuth flow and a request to the profile endpoint.
 
