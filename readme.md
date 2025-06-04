@@ -60,6 +60,16 @@ Some Fitbit API calls (such as [adding subscriptions](https://dev.fitbit.com/doc
 
 See [`example.js`](https://github.com/lukasolson/fitbit-node/blob/master/example.js) for a small Express application demonstrating the OAuth flow and a request to the profile endpoint.
 
+Refer to the [Fitbit API documentation](https://dev.fitbit.com/build/reference/web-api/) for a complete list of available endpoints and data formats.
+
+### Custom HTTP headers
+
+Some Fitbit API calls (such as [adding subscriptions](https://dev.fitbit.com/docs/subscriptions/#adding-a-subscription)) accept additional HTTP headers. The `get`, `post`, `put` and `delete` functions accept an optional `extraHeaders` parameter which will be merged with the default `Authorization` header.
+
+## Example
+
+See [`example.js`](https://github.com/lukasolson/fitbit-node/blob/master/example.js) for a small Express application demonstrating the OAuth flow and a request to the profile endpoint.
+
 
 ## Enumerating all Fitbit API endpoints
 
